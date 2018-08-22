@@ -7,6 +7,12 @@
 //
 
 #import "AppDelegate.h"
+#import <InstagramEngine.h>
+#import <FBSDKCoreKit/FBSDKCoreKit.h>
+#import <VKSdk.h>
+#import "Singleton.h"
+#import "Api.h"
+@import GoogleMaps;
 
 @interface AppDelegate ()
 
@@ -17,8 +23,48 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+    [Singleton shared].domen=@"http://beautybox.ru";
+    [GMSServices provideAPIKey:api_key];
+
+    if(TOKEN)
+    {
+        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+        UIViewController *myVC = (UIViewController *)[storyboard instantiateViewControllerWithIdentifier:@"Main"];
+        self.window.rootViewController=myVC;
+    }
     return YES;
 }
+
+-(BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
+    
+    [[FBSDKApplicationDelegate sharedInstance] application:application openURL:url sourceApplication:sourceApplication annotation:annotation];
+    [VKSdk processOpenURL:url fromApplication:sourceApplication];
+    
+    
+    return YES;
+}
+
+-(BOOL)application:(UIApplication *)application
+           openURL:(NSURL *)url
+           options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
+    
+    if (@available(iOS 9.0, *)) {
+        
+        [[FBSDKApplicationDelegate sharedInstance] application:application
+                                                       openURL:url
+                                             sourceApplication:options[UIApplicationOpenURLOptionsSourceApplicationKey]
+                                                    annotation:options[UIApplicationOpenURLOptionsAnnotationKey]
+         ];
+        
+      
+        [VKSdk processOpenURL:url fromApplication:options[UIApplicationOpenURLOptionsSourceApplicationKey]];
+    }
+    // Add any custom logic here.
+    return YES;
+}
+
+
 
 
 - (void)applicationWillResignActive:(UIApplication *)application {
